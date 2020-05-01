@@ -9,6 +9,8 @@ Pushing to master will deploy.
 
 There are a few secrets you need in the github repo for this to work:
 
+- DOCKER_USERNAME
+- DOCKER_PASSWORD
 - APTIBLE_ROBOT_USERNAME
 - APTIBLE_ROBOOT_PASSWORD
 
