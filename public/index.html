@@ -11,9 +11,51 @@
     <title>Github Action Demo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet">
 
+    <style>
+      body {
+        background-color: #0a1b2b;
+        color: #b5bbbf;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        font-weight: 300;
+        font-size: 28px;
+      }
+
+      p {
+        width: 500px;
+        text-align: center;
+      }
+
+      .logo {
+        width: 300px;
+        height: auto;
+      }
+
+      .app {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 60%;
+        width: 100%;
+      }
+
+      .box {
+        background-color: #132433;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        padding: 100px;
+      }
+    </style>
   </head>
 
   <body>
-    Hello, World!
+    <div class="app">
+      <div class="box">
+        <img class="logo" src="logo.svg" alt="Aptible Logo">
+        <p>Congratulations! You successfully deployed using Aptible's Github Action.</p>
+      </div>
+    </div>
   </body>
 </html>
