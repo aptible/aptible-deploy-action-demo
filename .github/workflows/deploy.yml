@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: aptible/aptible-deploy-action@v1
         with:
-          - aptible_email: ""
-          - aptible_password: ""
+          - aptible_email: ${{secrets.APTIBLE_EMAIL}}
+          - aptible_password: ${{secrets.APTIBLE_PASSWORD}}
           - aptible_app: "deploy-action-demo"
           - aptible_environment: "production"
