@@ -5,7 +5,7 @@ using a Github Action.
 
 ## Deployment
 
-Pushng to master will deploy.
+Pushing to master will deploy.
 
 There are a few secrets you need in the github repo for this to work:
 
