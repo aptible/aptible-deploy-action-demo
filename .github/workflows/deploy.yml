@@ -40,4 +40,4 @@ jobs:
           password: ${{ secrets.APTIBLE_ROBOOT_PASSWORD }}
           app: ${{ github.event_name == 'pull_request' && 'deploy-action-demo-staging' || 'deploy-action-demo' }}
           environment: public-demos
-          docker_img: ${{ needs.build.outputs.tag }}
+          docker_img: ${{ needs.build.outputs.image }}
