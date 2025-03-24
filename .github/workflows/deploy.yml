@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      image_name: aptible/github-action-demo
     steps:
       - name: Check out code
         uses: actions/checkout@master
@@ -19,12 +21,12 @@ jobs:
         id: publish_image
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: aptible/github-action-demo
+          name: ${{ env.image_name }}
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
     outputs:
-      image: aptible/github-action-demo:${{ steps.publish_image.outputs.tag }}
+      image: ${{ env.image_name }}:${{ steps.publish_image.outputs.tag }}
 
   deploy:
     needs: build
