@@ -20,7 +20,7 @@ jobs:
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
           name: aptible/github-action-demo
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
     outputs:
@@ -36,8 +36,8 @@ jobs:
       - name: Deploy to Aptible
         uses: aptible/aptible-deploy-action@fix-versioned-release
         with:
-          username: ${{secrets.APTIBLE_ROBOT_USERNAME}}
-          password: ${{secrets.APTIBLE_ROBOOT_PASSWORD}}
+          username: ${{ vars.APTIBLE_ROBOT_USERNAME }}
+          password: ${{ secrets.APTIBLE_ROBOOT_PASSWORD }}
           app: ${{ github.event_name == 'pull_request' && 'deploy-action-demo-staging' || 'deploy-action-demo' }}
           environment: public-demos
           docker_img: ${{ needs.build.outputs.tag }}
