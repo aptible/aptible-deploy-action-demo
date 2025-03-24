@@ -4,26 +4,40 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: aptible/github-action-demo
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Publish to Registry
+        id: publish_image
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: aptible/github-action-demo
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+    outputs:
+      image: aptible/github-action-demo:${{ steps.publish_image.outputs.tag }}
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: aptible/aptible-deploy-action@v1
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Deploy to Aptible
+        uses: aptible/aptible-deploy-action@fix-versioned-release
         with:
           username: ${{secrets.APTIBLE_ROBOT_USERNAME}}
           password: ${{secrets.APTIBLE_ROBOOT_PASSWORD}}
-          app: "deploy-action-demo"
-          environment: "chaos"
-          docker_img: "aptible/github-action-demo"
+          app: ${{ github.event_name == 'pull_request' && 'deploy-action-demo-staging' || 'deploy-action-demo' }}
+          environment: public-demos
+          docker_img: ${{ needs.build.outputs.tag }}
