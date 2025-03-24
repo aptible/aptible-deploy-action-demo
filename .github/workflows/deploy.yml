@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Deploy to Aptible
-        uses: aptible/aptible-deploy-action@fix-versioned-release
+        uses: aptible/aptible-deploy-action@v5
         with:
           type: docker
           username: ${{ vars.APTIBLE_ROBOT_USERNAME }}
