@@ -4,26 +4,62 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
+    # This actions publishes a tag based on the branch name (master) on merge to master,
+    # or the commit ID when triggered by Pull Request.
     runs-on: ubuntu-latest
+    env:
+      image_name: aptible/github-action-demo
     steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: aptible/github-action-demo
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: aptible/aptible-deploy-action@v1
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Publish to Registry
+        id: publish_image
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          username: ${{secrets.APTIBLE_ROBOT_USERNAME}}
-          password: ${{secrets.APTIBLE_ROBOOT_PASSWORD}}
-          app: "deploy-action-demo"
-          environment: "chaos"
-          docker_img: "aptible/github-action-demo"
+          name: ${{ env.image_name }}
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+    outputs:
+      image: ${{ env.image_name }}:${{ steps.publish_image.outputs.tag }}
+
+  test:
+    # Here we test the image as built, before deploying it.
+    # Since this is a simple app, all we can verify is that the nginx configuration is valid
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mock tests
+        run: docker run aptible/github-action-demo nginx -t
+
+  deploy:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Deploy to Aptible
+        uses: aptible/aptible-deploy-action@v5
+        with:
+          # We're deploying the image built in the above build job
+          type: docker
+          # Aptible credentials for a user with permission to deploy these apps
+          username: ${{ vars.APTIBLE_ROBOT_USERNAME }}
+          password: ${{ secrets.APTIBLE_ROBOOT_PASSWORD }}
+          # This controls deploying to a staging app for Pull Requests,
+          # and the "production" app when merged to master:
+          app: ${{ github.event_name == 'pull_request' && 'deploy-action-demo-staging' || 'deploy-action-demo' }}
+          # Both our staging and "production" app happen to be in the same Aptible environment
+          environment: public-demos
+          # Deploy the image and tag published above:
+          docker_img: ${{ needs.build.outputs.image }}
+          # Set any app-specific configuration variables here
+          config_variables: FORCE_SSL=true 
